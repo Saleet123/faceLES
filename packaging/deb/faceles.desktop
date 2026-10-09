@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=FaceLES
+Comment=Face login and attendance
+Exec=faceles
+Icon=faceles
+Terminal=false
+Categories=Office;Utility;
+StartupNotify=true
+StartupWMClass=FaceLES
+Keywords=attendance;face;shift;

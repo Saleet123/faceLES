@@ -10,12 +10,19 @@ __pycache__/
 build/
 dist/
 *.spec
+!packaging/*.spec
 
 # Virtual environments
 venv/
 .venv/
 env/
 *.egg-info/
+
+# Local Xft Tk used when the interpreter's Tk cannot draw TrueType fonts
+vendor/
+
+# Last selected camera
+camera_pref.txt
 
 # Runtime
 crash_flag.tmp
@@ -29,3 +36,8 @@ dev.*  # optional if you created custom signing certs
 # IDEs
 .vscode/
 .idea/
+
+# Next.js web dashboard
+web/node_modules/
+web/.next/
+web/out/

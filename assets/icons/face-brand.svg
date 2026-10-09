@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="10 10 44 44" fill="none">
+  <!-- Corner brackets -->
+  <path d="M14 22V14H22" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M50 22V14H42" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 42V50H22" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M50 42V50H42" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Face -->
+  <circle cx="32" cy="28" r="9" stroke="#FFFFFF" stroke-width="3" fill="none"/>
+  <path d="M20 48c3.5-7 8.5-10.5 12-10.5S40.5 41 44 48" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

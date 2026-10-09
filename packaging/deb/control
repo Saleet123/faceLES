@@ -1,0 +1,15 @@
+Package: faceles
+Version: 1.0.0
+Section: office
+Priority: optional
+Architecture: amd64
+Maintainer: FaceLES <faceles@local>
+Depends: libc6
+Recommends: libxcb1, libx11-6, libglib2.0-0
+Installed-Size: 0
+Description: Face login and attendance
+ FaceLES is a desktop attendance app with password or webcam
+ face login, shift tracking, and auto-breaks.
+ .
+ Double-click this package to install. After that, open FaceLES
+ from the applications menu.

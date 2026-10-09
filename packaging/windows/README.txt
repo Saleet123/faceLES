@@ -7,6 +7,8 @@ On a Windows PC, from the FaceLES folder:
 
   scripts\build_windows.bat
 
+That runs scripts\build_windows.ps1 (venv, PyInstaller, optional Inno Setup).
+
 That creates:
 
   dist\FaceLES\FaceLES.exe     (keep the whole FaceLES folder)

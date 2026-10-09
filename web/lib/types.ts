@@ -76,6 +76,11 @@ export type RangeSummary = {
   employeeRole: string;
   username: string;
   logged: string;
+  loggedRaw: string;
+  overtime: string;
+  shift: string;
+  shiftHours: number;
+  graceMinutes: number;
   worked: string;
   breaks: string;
   productiveBreaks: string;

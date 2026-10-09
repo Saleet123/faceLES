@@ -68,6 +68,10 @@ VALID_PASSWORD = "123"
 EMPLOYEE_NAME = "Saleet Ul Hassan"
 EMPLOYEE_ROLE = "Employee · Face-verified attendance"
 
+# Scheduled desk shift. Login beyond shift + grace is not counted on the dashboard.
+SHIFT_HOURS = 8
+SHIFT_GRACE_MINUTES = 30
+
 INACTIVITY_THRESHOLD = 3 * 60
 BREAK_COOLDOWN_SECONDS = 60
 COUNTDOWN_SECONDS = 10

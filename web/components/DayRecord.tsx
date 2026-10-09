@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatHrsMins, parseDurationSeconds } from "@/lib/format";
+import { capLoginSeconds, GRACE_MINUTES, MAX_LOGIN_SECONDS, SHIFT_SECONDS } from "@/lib/shift";
 import type { CalendarDay } from "@/lib/types";
 
 export function DayRecord({ row, start, end }: { row: CalendarDay; start: string; end: string }) {
@@ -124,9 +125,20 @@ export function DayRecord({ row, start, end }: { row: CalendarDay; start: string
           Shift end: <span className="font-semibold">{shift?.logoutTime || "--"}</span>
         </p>
         <p className="mt-1">
-          Total shift:{" "}
-          <span className="font-bold text-ok">{formatHrsMins(parseDurationSeconds(shift?.onShift))}</span>
+          Scheduled shift: <span className="font-bold">{formatHrsMins(SHIFT_SECONDS)}</span>
         </p>
+        <p>
+          Total shift (counted):{" "}
+          <span className="font-bold text-ok">
+            {formatHrsMins(capLoginSeconds(parseDurationSeconds(shift?.onShift)))}
+          </span>
+        </p>
+        {parseDurationSeconds(shift?.onShift) > MAX_LOGIN_SECONDS ? (
+          <p className="mt-1 text-xs font-semibold text-danger">
+            Over cap (shift + {GRACE_MINUTES} mins) not counted:{" "}
+            {formatHrsMins(parseDurationSeconds(shift?.onShift) - MAX_LOGIN_SECONDS)}
+          </p>
+        ) : null}
       </div>
     </article>
   );

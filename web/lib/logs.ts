@@ -10,6 +10,7 @@ import {
   monthBounds,
   parseDurationSeconds,
 } from "./format";
+import { capLoginSeconds, GRACE_MINUTES, SHIFT_HOURS, SHIFT_SECONDS } from "./shift";
 import type { CalendarDay, DayShift, RangeSummary, RawDayLog, RawSession, Shift } from "./types";
 
 const DEFAULT_NAME = process.env.FACELES_EMPLOYEE_NAME || "Saleet Ul Hassan";
@@ -155,7 +156,10 @@ export function loadDaysInRange(start: string, end: string): DayShift[] {
 export function summarizeRange(days: DayShift[], start: string, end: string): RangeSummary {
   const latest = days[0];
   const worked = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.worked), 0);
-  const logged = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.onShift), 0);
+  const loggedRaw = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.onShift), 0);
+  const logged = days.reduce((sum, d) => sum + capLoginSeconds(parseDurationSeconds(d.totals.onShift)), 0);
+  const overtime = Math.max(0, loggedRaw - logged);
+  const scheduledShift = days.length * SHIFT_SECONDS;
   const breaks = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.breaks), 0);
   const productive = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.productiveBreaks), 0);
   const nonProductive = days.reduce((sum, d) => sum + parseDurationSeconds(d.totals.nonProductiveBreaks), 0);
@@ -176,6 +180,11 @@ export function summarizeRange(days: DayShift[], start: string, end: string): Ra
     employeeRole: latest?.employeeRole || DEFAULT_ROLE,
     username: latest?.shifts[0]?.username || "saleet",
     logged: formatSeconds(logged),
+    loggedRaw: formatSeconds(loggedRaw),
+    overtime: formatSeconds(overtime),
+    shift: formatSeconds(scheduledShift),
+    shiftHours: SHIFT_HOURS,
+    graceMinutes: GRACE_MINUTES,
     worked: formatSeconds(worked),
     breaks: formatSeconds(breaks),
     productiveBreaks: formatSeconds(productive),

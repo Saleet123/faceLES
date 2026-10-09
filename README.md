@@ -14,10 +14,11 @@ Do **not** send `FaceLES.exe` by itself. OpenCV and Qt live next to it. A lone `
 
 | OS | What to give them | How they open it |
 |---|---|---|
-| **Windows** | `FaceLES-Setup.exe` (preferred) or a zip of the whole `dist\FaceLES` folder | Double-click Setup, then open FaceLES from the Start menu / Desktop. If you zipped the folder: unzip and double-click `FaceLES.exe` **inside that folder**. |
 | **Ubuntu** | `faceles_1.0.0_amd64.deb` | Double-click the `.deb` (or `sudo apt install ./faceles_1.0.0_amd64.deb`), then open **FaceLES** from the applications menu. |
+| **Windows** | `FaceLES-Setup.exe` (preferred) or a zip of the whole `dist\FaceLES` folder | Double-click Setup, then open FaceLES from the Start menu / Desktop. If you zipped the folder: unzip and double-click `FaceLES.exe` **inside that folder**. |
+| **macOS** | `FaceLES.app` or `FaceLES-macOS.zip` | Unzip if needed, drag the app to Applications, then open FaceLES. First time: right-click → Open. |
 
-Build those installers on the matching OS (Windows `.exe` on a Windows PC, Ubuntu `.deb` on Ubuntu).
+Build each installer **on that OS** (Ubuntu `.deb` on Ubuntu, Windows `.exe` on Windows, Mac `.app` on a Mac). Do not send a lone `.exe` / binary without its folder.
 
 Default login until you change `config/settings.py`:
 
@@ -28,6 +29,7 @@ Employee data (logs, enrolled face) is stored per user:
 
 - Windows: `%APPDATA%\FaceLES\`
 - Ubuntu: `~/.local/share/FaceLES/`
+- macOS: `~/Library/Application Support/FaceLES/`
 
 ---
 
@@ -110,7 +112,7 @@ FaceLES/
 ├── attendance_logs/
 ├── web/                    # Next.js day-wise attendance dashboard
 ├── packaging/              # PyInstaller spec, Ubuntu .deb, Windows Inno Setup
-├── scripts/                # build_ubuntu.sh, build_windows.bat
+├── scripts/                # build_ubuntu.sh, build_windows.bat, build_macos.sh
 ├── tests/
 ├── MIGRATION.md
 └── README.md
@@ -134,50 +136,115 @@ Open http://localhost:3000
 
 ## Package for employees
 
-### Ubuntu (`.deb`)
+Build on the same kind of machine you will ship to. You cannot make a Windows `.exe` on Ubuntu, or a Mac `.app` on Windows.
 
-On Ubuntu, from this repo:
+---
 
-```bash
-./scripts/build_ubuntu.sh
-```
+### Ubuntu — create a `.deb`
 
-That builds the app and then:
+**On an Ubuntu PC**, from the FaceLES repo:
 
-```bash
-./scripts/build_ubuntu_deb.sh
-```
+1. Install Python 3.10+ if needed (`python3`, `python3-venv`, `python3-pip`).
+2. One-time setup:
 
-Output:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-- `dist/faceles_1.0.0_amd64.deb` — copy this to other Ubuntu PCs
+3. Build the app **and** the Debian package:
 
-Install:
+   ```bash
+   chmod +x scripts/build_ubuntu.sh scripts/build_ubuntu_deb.sh
+   ./scripts/build_ubuntu.sh
+   ```
 
-```bash
-sudo apt install ./faceles_1.0.0_amd64.deb
-```
+   `build_ubuntu.sh` already calls `build_ubuntu_deb.sh` at the end. To rebuild only the `.deb` after the app folder exists:
 
-Then search **FaceLES** in the applications menu.
+   ```bash
+   ./scripts/build_ubuntu_deb.sh
+   ```
 
-### Windows (`.exe` installer)
+4. Output file to give employees:
 
-Must be run **on a Windows PC** (this cannot be built from Ubuntu).
+   ```
+   dist/faceles_1.0.0_amd64.deb
+   ```
 
-1. Install [Python 3.12+](https://www.python.org/downloads/) (tick **Add python.exe to PATH**).
-2. Optional, for a Setup installer: [Inno Setup 6](https://jrsoftware.org/isinfo.php).
-3. Open the FaceLES folder in File Explorer, then double-click:
+5. On each Ubuntu PC, install it:
 
-   `scripts\build_windows.bat`
+   ```bash
+   sudo apt install ./faceles_1.0.0_amd64.deb
+   ```
 
-That creates:
+   Or double-click the `.deb` and click **Install**. Then open **FaceLES** from the applications menu.
 
-- `dist\FaceLES\FaceLES.exe` — portable app; zip the **whole** `FaceLES` folder
-- `dist\FaceLES-Setup.exe` — only if Inno Setup is installed; **this is what you send to employees**
+Login: `saleet` / `123`.
 
-Employees double-click `FaceLES-Setup.exe`, click through the installer, then open FaceLES from the Start menu or Desktop shortcut.
+---
+
+### Windows — create an `.exe` installer
+
+**Must be run on a Windows PC.**
+
+1. Install [Python 3.12+](https://www.python.org/downloads/). Tick **Add python.exe to PATH**.
+2. Optional, for a Setup installer employees can double-click: [Inno Setup 6](https://jrsoftware.org/isinfo.php).
+3. Clone or copy this repo, open the FaceLES folder, then double-click:
+
+   ```
+   scripts\build_windows.bat
+   ```
+
+   Or in PowerShell:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\build_windows.ps1
+   ```
+
+4. Output:
+
+   | File | Give to employees? |
+   |---|---|
+   | `dist\FaceLES\FaceLES.exe` plus the rest of `dist\FaceLES\` | Only if you zip the **whole folder** |
+   | `dist\FaceLES-Setup.exe` | **Yes** — this is the installer (created when Inno Setup is installed) |
+
+5. Employees double-click `FaceLES-Setup.exe`, install, then open FaceLES from the Start menu or Desktop.
+
+   If you have no Setup.exe: zip `dist\FaceLES` and tell them to unzip and double-click `FaceLES.exe` **inside that folder**. A single `.exe` will not run.
 
 You can also build on GitHub: **Actions → Build Windows → Run workflow**, then download the `FaceLES-Setup-windows` artifact.
+
+Login: `saleet` / `123`.
+
+---
+
+### macOS — create a `.app`
+
+**Must be run on a Mac.**
+
+1. Install Python 3.12+ (python.org or Homebrew: `brew install python`).
+2. From the FaceLES repo in Terminal:
+
+   ```bash
+   chmod +x scripts/build_macos.sh
+   ./scripts/build_macos.sh
+   ```
+
+3. Output to give employees:
+
+   ```
+   dist/FaceLES.app
+   dist/FaceLES-macOS.zip
+   ```
+
+4. Employees unzip if needed, drag **FaceLES.app** into **Applications**, then open it.
+
+   First launch of an unsigned app: **right-click → Open** (Gatekeeper). Camera access is requested the first time.
+
+   Shipping without Gatekeeper warnings requires an Apple Developer account (`codesign` + notarization).
+
+Login: `saleet` / `123`.
 
 ---
 

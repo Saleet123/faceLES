@@ -83,3 +83,22 @@ coll = COLLECT(
     upx_exclude=[],
     name="FaceLES",
 )
+
+if sys.platform == "darwin":
+    from PyInstaller.building.osx import BUNDLE
+
+    icns = os.path.join(ROOT, "assets", "icons", "app.icns")
+    app = BUNDLE(
+        coll,
+        name="FaceLES.app",
+        icon=icns if os.path.isfile(icns) else None,
+        bundle_identifier="com.faceles.app",
+        info_plist={
+            "CFBundleName": "FaceLES",
+            "CFBundleDisplayName": "FaceLES",
+            "CFBundleShortVersionString": "1.0.0",
+            "NSHighResolutionCapable": True,
+            "NSCameraUsageDescription": "FaceLES uses the camera to verify you are at your desk.",
+        },
+    )
+

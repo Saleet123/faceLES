@@ -2,6 +2,7 @@ import { DayRecord } from "@/components/DayRecord";
 import { FilterBar } from "@/components/FilterBar";
 import { formatHrsMins, initials, parseDurationSeconds } from "@/lib/format";
 import { loadCalendarInRange, loadDaysInRange, logsDirectory, resolveRange, summarizeRange } from "@/lib/logs";
+import { GRACE_MINUTES, MAX_LOGIN_SECONDS, SHIFT_HOURS } from "@/lib/shift";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,16 @@ export default async function HomePage({
   const summary = summarizeRange(days, range.start, range.end);
   const loggedSecs = parseDurationSeconds(summary.logged);
   const workedSecs = parseDurationSeconds(summary.worked);
-  const diffSecs = Math.abs(loggedSecs - workedSecs);
-  const workedVsLogged =
-    workedSecs === loggedSecs
-      ? "Calculated worked duration matches logged-in duration."
-      : workedSecs > loggedSecs
-        ? `Your calculated worked duration is ${formatHrsMins(diffSecs)} greater than logged-in duration.`
-        : `Your calculated worked duration is ${formatHrsMins(diffSecs)} less than logged-in duration.`;
+  const shiftSecs = parseDurationSeconds(summary.shift);
+  const overtimeSecs = parseDurationSeconds(summary.overtime);
+  const vsShift = workedSecs - shiftSecs;
+  const shortOfShift = vsShift < 0;
+  const workedVsShift =
+    vsShift === 0
+      ? "Calculated worked duration matches total shift duration."
+      : shortOfShift
+        ? `Your calculated worked duration is ${formatHrsMins(Math.abs(vsShift))} less than shift duration.`
+        : `Your calculated worked duration is ${formatHrsMins(vsShift)} greater than shift duration.`;
 
   return (
     <div className="space-y-4">
@@ -47,9 +51,21 @@ export default async function HomePage({
         </section>
       </div>
 
-      <p className="rounded-lg border border-[#BFE8D4] bg-[#E8F8F0] px-4 py-2 text-sm font-semibold text-[#1B7A4E]">
-        {workedVsLogged}
+      <p
+        className={`rounded-lg border px-4 py-2 text-sm font-semibold ${
+          shortOfShift
+            ? "border-[#F5C2C7] bg-[#FDECEC] text-[#B42318]"
+            : "border-[#BFE8D4] bg-[#E8F8F0] text-[#1B7A4E]"
+        }`}
+      >
+        {workedVsShift}
       </p>
+      {overtimeSecs > 0 ? (
+        <p className="rounded-lg border border-[#F5C2C7] bg-[#FDECEC] px-4 py-2 text-sm font-semibold text-[#B42318]">
+          Login beyond shift + {GRACE_MINUTES} mins grace is not counted ({formatHrsMins(overtimeSecs)} over the daily
+          cap).
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
@@ -78,7 +94,18 @@ export default async function HomePage({
           <div className="rounded-t-2xl bg-[#1E5BB8] px-4 py-2 text-sm font-bold text-white">Worked Hours</div>
           <dl className="divide-y divide-line text-sm">
             <Row label="Days logged" value={`${summary.daysLogged} Days`} />
-            <Row label="Total logged in duration" value={formatHrsMins(loggedSecs)} />
+            <Row
+              label={`Total shift duration (${SHIFT_HOURS} Hrs / day)`}
+              value={formatHrsMins(shiftSecs)}
+            />
+            <Row
+              label={`Allowed login (shift + ${GRACE_MINUTES} mins grace / day)`}
+              value={formatHrsMins(summary.daysLogged * MAX_LOGIN_SECONDS)}
+            />
+            <Row label="Total logged in duration (counted)" value={formatHrsMins(loggedSecs)} />
+            {overtimeSecs > 0 ? (
+              <Row label="Over daily cap (not counted)" value={formatHrsMins(overtimeSecs)} />
+            ) : null}
             <Row label="Total break duration" value={formatHrsMins(parseDurationSeconds(summary.breaks))} />
             <Row
               label="Productive breaks (Meeting, Lunch, Prayer, Tea, Call)"
@@ -136,7 +163,15 @@ export default async function HomePage({
   );
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-2.5">
       <dt className="text-muted">{label}</dt>

@@ -1,110 +1,94 @@
-# FaceLES - Face Login & Attendance System
+# FaceLES — Face Login & Attendance
 
-**FaceLES** is a desktop application that combines facial recognition and user activity monitoring to manage employee attendance, detect idle time, and generate break logs in real-time.
+Desktop attendance monitor for Ubuntu/Linux: password or biometric login, shift tracking, idle/absence breaks, and CSV export.
 
----
-
-## ✨ Features
-
-- 👤 **Face Recognition Login**
-  - Uses OpenCV LBPH face recognizer
-  - Matches face against registered dataset
-
-- ⏰ **Real-time Shift Tracking**
-  - Tracks login time, break durations, work duration, etc.
-  
-- ✉ **Break Monitoring & Auto Detection**
-  - Manual break types: Prayer, Tea, Meeting, Lunch, etc.
-  - Auto breaks triggered by:
-    - Absence from screen
-    - Inactivity (keyboard + mouse)
-    - Crash detection (network loss or unexpected termination)
-
-- ⚡ **Live Camera Preview**
-  - Display your face as you work
-
-- 📊 **Daily Summary & Export**
-  - View all breaks with type and time
-  - Export logs to CSV
+**Primary entry point:** `Ubuntu.py`
 
 ---
 
-## 📆 Installation & Setup
+## Features
 
-### Requirements
+- Face recognition (OpenCV LBPH) + password login
+- Biometric enrollment modal and biometric login
+- Live shift stats (login time, breaks, work duration)
+- Manual breaks (Meeting, Lunch, Prayer, Tea, Call)
+- Auto breaks after **5 minutes** of inactivity (and absence when a camera + face model are available)
+- Daily summary and CSV export (in-app modals)
+- Attendance JSON logs under `attendance_logs/`
+
+---
+
+## Requirements
+
 - Python 3.10+
-- OpenCV with `opencv-contrib-python`
-- PIL, Tkinter, Numpy, etc.
+- Webcam optional (without camera: password login + inactivity / manual breaks only)
 
-### 1. Install dependencies
+---
+
+## Setup
+
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Register your face
+### Run
+
 ```bash
-python main.py
-# Then click "Register Face" and follow on-screen prompts.
+python Ubuntu.py
 ```
 
-### 3. Run the App
-```bash
-python main.py
-```
+Default demo credentials (change in `Ubuntu.py`):
+
+- Username: `saleet`
+- Password: `123`
+
+### Register a face
+
+On the login screen, click **Register face**, complete the enrollment captures, then use **Biometric login**.
 
 ---
 
-## 🌟 Building Executable
+## How auto-breaks work
 
-### macOS (.app)
-```bash
-pyinstaller --windowed --name FaceLES main.py \
-  --add-data "haarcascade_frontalface_default.xml:." \
-  --icon=face-unlock.icns --osx-bundle-identifier com.saleet.faceles
-```
+| Setup | Behavior |
+|-------|----------|
+| **No camera** | Only mouse/keyboard idle (5 min) → countdown → auto break |
+| **Camera + enrolled face** | Idle and/or face absence (5 min) can trigger auto break |
 
-Make sure to:
-- Add `NSCameraUsageDescription` in `Info.plist`
-- Code-sign the app with proper entitlements for camera access
-
-### Windows (.exe)
-You **must build on a Windows machine**:
-```bash
-pyinstaller --noconsole --onefile main.py
-```
+Moving the mouse or typing cancels a pending idle countdown.
 
 ---
 
-## 🔗 Directory Structure
+## Project layout
+
 ```
 FaceLES/
-├── main.py
-├── lbph_model.yml
-├── label_map.txt
+├── Ubuntu.py                          # Main app (use this)
+├── requirements.txt
 ├── haarcascade_frontalface_default.xml
 ├── profile_pic.jpg
-├── attendance_logs/
-├── README.md
-├── requirements.txt
-├── .gitignore
-├── face-unlock.icns
-└── FaceLES.spec
+├── lbph_model.yml                     # Created after face registration (gitignored)
+├── label_map.txt                      # Created after registration (gitignored)
+├── attendance_logs/                   # Runtime logs (gitignored)
+├── main.py                            # Older Tkinter variant
+├── kivy_face_monitor.py               # Older Kivy variant
+└── README.md
 ```
 
 ---
 
-## 🚫 Permissions & Camera Access
-- Ensure Info.plist has `NSCameraUsageDescription`
-- App must be signed on macOS to access camera in bundled form
+## Build (optional)
+
+```bash
+pyinstaller --noconsole --onefile Ubuntu.py \
+  --add-data "haarcascade_frontalface_default.xml:." \
+  --icon=face-unlock.icns
+```
 
 ---
 
-## 📢 Contributing
-Want to add new break types, improve UI, or integrate notifications? PRs are welcome!
+## Author
 
----
-
-## 🚀 Author
-**Saleet Ul Hassan**  
-Crafted with purpose and precision.
-
+**Saleet Ul Hassan**

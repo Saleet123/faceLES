@@ -1,0 +1,31 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.so
+
+# macOS metadata
+.DS_Store
+
+# Build directories
+build/
+dist/
+*.spec
+
+# Virtual environments
+venv/
+.venv/
+env/
+*.egg-info/
+
+# Runtime
+crash_flag.tmp
+
+# FaceLES logs and generated files
+attendance_logs/
+lbph_model.yml
+label_map.txt
+dev.*  # optional if you created custom signing certs
+
+# IDEs
+.vscode/
+.idea/
